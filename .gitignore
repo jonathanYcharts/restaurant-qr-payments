@@ -1,0 +1,43 @@
+# === PYTHON / DJANGO ===
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+.env
+
+# === ANGULAR ===
+node_modules/
+dist/
+.angular/
+tmp/
+out-tsc/
+bazel-out/
+npm-debug.log
+yarn-error.log
+.angular/cache
+coverage/
+connect.lock
+libpeerconnection.log
+testem.log
+typings/
+
+# === IDEs and Editors ===
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# === SYSTEM FILES ===
+.DS_Store
+Thumbs.db
