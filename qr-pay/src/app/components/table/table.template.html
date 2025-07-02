@@ -1,0 +1,20 @@
+<div *ngIf="items.length; else loading">
+  <h2>Mesa {{ tableNumber }}</h2>
+  <ul>
+    <li *ngFor="let item of items">
+      <label>
+        <input type="checkbox" [(ngModel)]="item.selected" />
+        {{ item.name }} — {{ item.price | currency: 'MXN' }}
+      </label>
+    </li>
+  </ul>
+
+  <div *ngIf="getSelectedItems().length">
+    <p><strong>Total:</strong> {{ calculateTotal() | currency: 'MXN' }}</p>
+    <button (click)="confirmSelection()">Confirm & Pay</button>
+  </div>
+</div>
+
+<ng-template #loading>
+    <p>Cargando orden...</p>
+</ng-template>
