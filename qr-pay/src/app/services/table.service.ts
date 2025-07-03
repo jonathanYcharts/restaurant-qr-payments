@@ -1,20 +1,24 @@
+// Vendor
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
+// Interfaces
+import { Table } from '../interfaces/order.interface';
 
 @Injectable({ providedIn: 'root' })
 export class TableService {
     constructor(private http: HttpClient) {}
 
-    getTableItems(tableNumber: number): Observable<{ table: number; items: any[] }>  {
-        return this.http.get<{ table: number; items: any[] }>(
-            `http://localhost:8000/mesa/${tableNumber}/`
+    getTableItems(restaurantId: number, tableNumber: number): Observable<Table>  {
+        return this.http.get<Table>(
+            `http://localhost:8000/restaurant/${restaurantId}/mesa/${tableNumber}/`
         );
     }
 
-    createCheckoutSession(items: any[]): Observable<{ id: string }> {
+    createCheckoutSession(restaurantId: number, items: any[]): Observable<{ id: string }> {
         return this.http.post<{ id: string }>(
-            'http://localhost:8000/create-checkout-session/',
+            `http://localhost:8000/restaurant/${restaurantId}/create-checkout-session/`,
             { items }
         );
     }

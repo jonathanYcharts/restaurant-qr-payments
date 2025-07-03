@@ -1,20 +1,37 @@
-<div *ngIf="items.length; else loading">
+<div *ngIf="table !== null; else loading">
   <h2>Mesa {{ tableNumber }}</h2>
-  <ul>
-    <li *ngFor="let item of items">
-      <label>
-        <input type="checkbox" [(ngModel)]="item.selected" />
-        {{ item.name }} — {{ item.price | currency: 'MXN' }}
-      </label>
-    </li>
-  </ul>
+
+  <div>
+    <ul>
+      <li *ngFor="let item of table.items">
+        <div [ngStyle]="{ 'text-decoration': item.is_paid ? 'line-through' : 'none', opacity: item.is_paid ? 0.6 : 1 }">
+          <label>
+            {{ item.name }} — {{ item.price | currency: 'MXN' }}  
+            ({{ item.quantity_paid }}/{{ item.quantity }} pagados)
+          </label>
+
+          <div *ngIf="item.unpaid_quantity > 0">
+            <label>
+              Pagar: 
+              <input
+                type="number"
+                [(ngModel)]="item.quantity_to_pay"
+                [min]="0"
+                [max]="item.unpaid_quantity"
+              />
+            </label>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
 
   <div *ngIf="getSelectedItems().length">
     <p><strong>Total:</strong> {{ calculateTotal() | currency: 'MXN' }}</p>
-    <button (click)="confirmSelection()">Confirm & Pay</button>
+    <button (click)="confirmSelection()">Confirmar y Pagar</button>
   </div>
 </div>
 
 <ng-template #loading>
-    <p>Cargando orden...</p>
+  <p>Cargando orden...</p>
 </ng-template>

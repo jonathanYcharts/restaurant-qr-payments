@@ -1,28 +1,13 @@
-"""
-URL configuration for restaurantqr project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
 from django.contrib import admin
 from django.urls import path
 
-from orders.views import get_table_items, create_checkout_session
+from orders.views import get_table_orders, create_checkout_session
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('mesa/<int:table_number>/', get_table_items),
-    path('create-checkout-session/', create_checkout_session),
+    # Restaurant-specific table access
+    path("restaurant/<int:restaurant_id>/mesa/<int:table_number>/", get_table_orders),
+    # Checkout session creation (also scoped to restaurant)
+    path("restaurant/<int:restaurant_id>/create-checkout-session/", create_checkout_session),
 ]
