@@ -28,6 +28,25 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Login
+AUTH_USER_MODEL = 'orders.RestaurantUser'
+LOGIN_URL = '/admin/login/'
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:4200",
+]
+
+# Permitir cookies de sesión en desarrollo
+SESSION_COOKIE_SAMESITE = "Lax"  # o "None" si estás usando HTTPS
+SESSION_COOKIE_SECURE = False    # True en producción con HTTPS
+
+
 # Stripe constants
 TEST_STRIPE_SECRET_KEY = config('TEST_STRIPE_SECRET_KEY')
 TEST_STRIPE_PUBLISHABLE_KEY = config('TEST_STRIPE_PUBLISHABLE_KEY')

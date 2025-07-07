@@ -1,13 +1,74 @@
 import json
 import stripe
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.contrib.auth import authenticate, login, logout
 
-from .models import Restaurant, Order
+from .models import Restaurant, Order, RegistrationToken, RestaurantUser
+
 
 stripe.api_key = settings.TEST_STRIPE_SECRET_KEY
+
+
+@method_decorator(login_required, name='dispatch')
+class RestaurantDashboardView(View):
+    def get(self, request):
+        user = request.user
+        restaurant = request.user.restaurant
+        if not restaurant:
+            return JsonResponse({'error': 'No restaurant assigned to this user.'}, status=403)
+
+        orders = restaurant.orders.order_by('-created_at').values(
+            'id', 'table_number', 'status', 'created_at', 'updated_at'
+        )
+        menu = restaurant.menu_items.values('id', 'name', 'price', 'available')
+
+        return JsonResponse({
+            'username': user.username,
+            'email': user.email,
+            'restaurant': restaurant.name,
+            'orders': list(orders),
+            'menu': list(menu),
+        })
+
+
+@csrf_exempt
+def login_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user = authenticate(username=data['username'], password=data['password'])
+        if user:
+            login(request, user)
+            return JsonResponse({'success': True})
+        return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+    return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+
+
+@csrf_exempt
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+
+
+@login_required
+def check_auth_view(request):
+    user = request.user
+    return JsonResponse({
+        'username': user.username,
+        'email': user.email,
+        'restaurant': user.restaurant.name if user.restaurant else None,
+    })
+
 
 @csrf_exempt
 def create_checkout_session(request, restaurant_id):
@@ -89,3 +150,35 @@ def get_table_orders(request, restaurant_id, table_number):
         'status': order.status,
         'items': items,
     })
+
+
+@csrf_exempt
+def activate_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        token = data.get('token')
+        username = data.get('username')
+        password = data.get('password')
+        restaurant_name = data.get('restaurant_name')
+
+        if not all([token, username, password, restaurant_name]):
+            return JsonResponse({'error': 'Missing fields'}, status=400)
+
+        try:
+            reg_token = RegistrationToken.objects.get(token=token, is_used=False)
+        except RegistrationToken.DoesNotExist:
+            return JsonResponse({'error': 'Invalid or used token'}, status=403)
+
+        if RestaurantUser.objects.filter(username=username).exists():
+            return JsonResponse({'error': 'Username taken'}, status=409)
+
+        restaurant = Restaurant.objects.create(name=restaurant_name)
+        user = RestaurantUser.objects.create_user(username=username, password=password, restaurant=restaurant)
+
+        reg_token.is_used = True
+        reg_token.save()
+
+        login(request, user)
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'error': 'Only POST method allowed'}, status=405)

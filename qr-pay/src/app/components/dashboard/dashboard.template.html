@@ -1,0 +1,27 @@
+<h2>Hola {{ username }}</h2>
+<p *ngIf="restaurantName; else noRestaurant">Restaurante: {{ restaurantName }}</p>
+
+<ng-template #noRestaurant>
+  <h2>Sin Restaurante</h2>
+</ng-template>
+
+<div *ngIf="error" style="color:red">{{ error }}</div>
+
+<section>
+  <button (click)="logout()">Cerrar sesión</button>
+  <h3>Órdenes actuales</h3>
+  <ul>
+    <li *ngFor="let order of orders">
+      Mesa {{ order.table_number }} — {{ order.status }} — {{ order.created_at | date:'short' }}
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h3>Menú</h3>
+  <ul>
+    <li *ngFor="let item of menu">
+      {{ item.name }} — ${{ item.price }} — {{ item.available ? 'Disponible' : 'No disponible' }}
+    </li>
+  </ul>
+</section>
