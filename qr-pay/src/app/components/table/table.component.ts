@@ -23,6 +23,25 @@ export class TableComponent implements OnInit {
   restaurantId!: number;
   tableNumber!: number;
   table: Table | null = null;
+  tipPercentage: number = 10;
+  customTip: string | null = null;
+
+  get isTipInvalid(): boolean {
+    if (this.tipPercentage !== -1 || this.customTip === null || this.customTip === '') {
+      return false;
+    }
+
+    const tip = Number(this.customTip);
+    return !isNaN(tip) && tip < 0;
+  }
+
+  get effectiveTip(): number {
+    if (this.tipPercentage === -1) {
+      const value = parseFloat(this.customTip ?? '');
+      return isNaN(value) ? 0 : Math.max(0, value);
+    }
+    return this.tipPercentage;
+  }
 
   constructor(private route: ActivatedRoute, private tableService: TableService) {}
 
@@ -51,9 +70,12 @@ export class TableComponent implements OnInit {
   }
 
   calculateTotal(): number {
-    return this.getSelectedItems().reduce((sum, item) => {
+    const subtotal = this.getSelectedItems().reduce((sum, item) => {
       return sum + item.price * item.quantity_to_pay;
     }, 0);
+
+    const tipAmount = subtotal * (this.effectiveTip / 100);
+    return subtotal + tipAmount;
   }
 
   async confirmSelection(): Promise<void> {
@@ -63,6 +85,18 @@ export class TableComponent implements OnInit {
       price: item.price,
       quantity: item.quantity_to_pay,
     }));
+
+    const subtotal = this.getSelectedItems().reduce((sum, item) => sum + item.price * item.quantity_to_pay, 0);
+    const tipAmount = Math.round((subtotal * (this.effectiveTip / 100)) * 100);
+
+    if (tipAmount > 0) {
+      selected.push({
+        id: -1,
+        name: `Propina ${this.effectiveTip}%`,
+        price: tipAmount / 100,
+        quantity: 1
+      });
+    }
 
     this.tableService.createCheckoutSession(this.restaurantId, selected).subscribe({
       next: async (res) => {

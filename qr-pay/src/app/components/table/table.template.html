@@ -23,12 +23,45 @@
           </div>
         </div>
       </li>
+
+      <div>
+        <label><strong>Propina:</strong></label><br />
+
+        <label>
+          <input type="radio" name="tip" [(ngModel)]="tipPercentage" [value]="10" /> 10%
+        </label>
+        <label>
+          <input type="radio" name="tip" [(ngModel)]="tipPercentage" [value]="15" /> 15%
+        </label>
+        <label>
+          <input type="radio" name="tip" [(ngModel)]="tipPercentage" [value]="20" /> 20%
+        </label>
+        <label>
+          <input type="radio" name="tip" [(ngModel)]="tipPercentage" [value]="-1" /> Personalizada
+          <ng-container *ngIf="tipPercentage === -1">
+            <input
+              type="number"
+              [(ngModel)]="customTip"
+              placeholder="Ej. 12"
+              min="0"
+              style="width: 60px;"
+              required
+            />%
+          </ng-container>
+        </label>
+        <div *ngIf="+customTip > 100" style="color: green;">
+          ¡Ah loco perro feriudo! Te vez bien ehh
+        </div>
+        <div *ngIf="isTipInvalid" style="color: red;">
+          Ingresa una propina válida (0% o más).
+        </div>
+      </div>
     </ul>
   </div>
 
   <div *ngIf="getSelectedItems().length">
     <p><strong>Total:</strong> {{ calculateTotal() | currency: 'MXN' }}</p>
-    <button (click)="confirmSelection()">Confirmar y Pagar</button>
+    <button *ngIf="!isTipInvalid" (click)="confirmSelection()">Confirmar y Pagar</button>
   </div>
 </div>
 

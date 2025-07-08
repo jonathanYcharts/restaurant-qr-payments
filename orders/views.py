@@ -106,11 +106,6 @@ def create_checkout_session(request, restaurant_id):
             success_url='http://localhost:4200/success',
             cancel_url='http://localhost:4200/cancel',
             metadata=metadata,
-            # Pending to decipher the tips shit
-            # tip_settings={
-            #     'enabled': True,
-            #     'suggested_tip_percentages': [10, 15, 20],
-            # },
         )
 
         return JsonResponse({'id': session.id})
