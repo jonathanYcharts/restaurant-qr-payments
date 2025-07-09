@@ -12,7 +12,6 @@ from orders.views import (
     add_menu_item,
     update_menu_item,
     delete_menu_item,
-
     create_order,
     update_order_status,
     add_item_to_order,
@@ -34,8 +33,8 @@ urlpatterns = [
     path("api/activate/", activate_view),
     # Dashboard menu items
     path("menu/add/", add_menu_item),
-    path("menu/update/<int:item_id>", update_menu_item),
-    path("menu/delete/<int:item_id>", delete_menu_item),
+    path("menu/update/<int:item_id>/", update_menu_item),
+    path("menu/delete/<int:item_id>/", delete_menu_item),
     # Dashboard orders
     path("order/create/", create_order),
     path("order/update-status/<int:order_id>", update_order_status),

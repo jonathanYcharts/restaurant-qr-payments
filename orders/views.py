@@ -142,8 +142,8 @@ def get_table_orders(request, restaurant_id, table_number):
     items = [
         {
             'id': item.id,
-            'name': item.menu_item.name,
-            'price': float(item.menu_item.price),
+            'name': item.name,
+            'price': float(item.price_at_order),
             'quantity': item.quantity,
             'quantity_paid': item.quantity_paid,
             'unpaid_quantity': item.unpaid_quantity,

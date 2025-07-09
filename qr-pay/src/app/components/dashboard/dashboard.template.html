@@ -5,11 +5,12 @@
   <h2>Sin Restaurante</h2>
 </ng-template>
 
+<button (click)="logout()">Cerrar sesión</button>
+
 <div *ngIf="error" style="color:red">{{ error }}</div>
 
+<!-- Create Order -->
 <section>
-  <button (click)="logout()">Cerrar sesión</button>
-
   <h3>Crear Nueva Orden</h3>
   <input type="number" [(ngModel)]="newOrderTableNumber" placeholder="Número de mesa" />
   <button (click)="createOrder()">➕ Crear orden</button>
@@ -23,9 +24,11 @@
   </ul>
 </section>
 
+<!-- Orders -->
 <section *ngIf="selectedOrder">
   <h3>Editar Orden - Mesa {{ selectedOrder.table_number }}</h3>
 
+  <!-- Update state -->
   <div *ngIf="getAvailableStatuses().length">
       <label>Estado:</label>
     <select [(ngModel)]="selectedOrder.status" (change)="changeOrderStatus(selectedOrder.status)">
@@ -53,6 +56,7 @@
     <button (click)="confirmPartialPayment()">✔️ Confirmar pago parcial</button>
   </div>
 
+  <!-- Add item -->
   <h4>Agregar producto</h4>
   <div *ngIf="canEditOrder; else disabledAddForm">
     <select [(ngModel)]="newOrderItem.menu_item_id">
@@ -66,6 +70,7 @@
     <p style="color: gray;">No puedes agregar productos a una orden pagada o cancelada.</p>
   </ng-template>
 
+  <!-- Current Items -->
   <h4>Productos en esta orden</h4>
   <ul>
     <li *ngFor="let item of selectedOrder.items">
@@ -92,6 +97,7 @@
   </ul>
 </section>
 
+<!-- Menu -->
 <section>
   <h3>Menú</h3>
 
@@ -110,6 +116,7 @@
     </li>
   </ul>
 
+  <!-- Add menu items -->
   <h4>Agregar nuevo ítem</h4>
   <input [(ngModel)]="newItem.name" placeholder="Nombre" />
   <input type="number" [(ngModel)]="newItem.price" placeholder="Precio" />
