@@ -49,7 +49,7 @@
             />%
           </ng-container>
         </label>
-        <div *ngIf="+customTip > 100" style="color: green;">
+        <div *ngIf="tipPercentage === -1 && customTip && +customTip > 100" style="color: green;">
           ¡Ah loco perro feriudo! Te vez bien ehh
         </div>
         <div *ngIf="isTipInvalid" style="color: red;">

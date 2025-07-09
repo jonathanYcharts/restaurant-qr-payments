@@ -81,14 +81,16 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
+    name = models.CharField(max_length=100)
+    price_at_order = models.DecimalField(max_digits=8, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     quantity_paid = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.menu_item.name} x{self.quantity}"
+        return f"{self.name} x{self.quantity} @ ${self.price_at_order}"
 
     def total_price(self):
-        return self.menu_item.price * self.quantity
+        return self.price_at_order * self.quantity
 
     @property
     def is_fully_paid(self):

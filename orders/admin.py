@@ -13,6 +13,18 @@ from .models import (
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 1
+    readonly_fields = ['name', 'price_at_order', 'menu_item', 'quantity', 'quantity_paid']
+    can_delete = False
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name', 'price_at_order', 'quantity', 'quantity_paid', 'is_fully_paid']
+    list_filter = ['order__restaurant']
+    search_fields = ['name', 'order__table_number']
+    list_select_related = ['order']
+    ordering = ['-order__created_at']
+    readonly_fields = ['order', 'menu_item', 'name', 'price_at_order', 'quantity', 'quantity_paid']
 
 
 @admin.register(Order)

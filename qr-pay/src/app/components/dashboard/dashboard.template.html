@@ -9,19 +9,109 @@
 
 <section>
   <button (click)="logout()">Cerrar sesión</button>
+
+  <h3>Crear Nueva Orden</h3>
+  <input type="number" [(ngModel)]="newOrderTableNumber" placeholder="Número de mesa" />
+  <button (click)="createOrder()">➕ Crear orden</button>
+
   <h3>Órdenes actuales</h3>
   <ul>
     <li *ngFor="let order of orders">
       Mesa {{ order.table_number }} — {{ order.status }} — {{ order.created_at | date:'short' }}
+      <button (click)="selectOrder(order)">Editar</button>
+    </li>
+  </ul>
+</section>
+
+<section *ngIf="selectedOrder">
+  <h3>Editar Orden - Mesa {{ selectedOrder.table_number }}</h3>
+
+  <div *ngIf="getAvailableStatuses().length">
+      <label>Estado:</label>
+    <select [(ngModel)]="selectedOrder.status" (change)="changeOrderStatus(selectedOrder.status)">
+      <option *ngFor="let status of getAvailableStatuses()" [value]="status.value">
+        {{ status.label }}
+      </option>
+    </select>
+  </div>
+
+  <div *ngIf="showPartialPaymentForm">
+    <h4>Selecciona los productos ya pagados</h4>
+    <ul>
+      <li *ngFor="let item of selectedOrder.items">
+        {{ item.name }} — x {{ item.quantity }}
+        <br />
+        Pagados:
+        <input
+          type="number"
+          [(ngModel)]="item.quantity_paid"
+          [min]="0"
+          [max]="item.quantity"
+        />
+      </li>
+    </ul>
+    <button (click)="confirmPartialPayment()">✔️ Confirmar pago parcial</button>
+  </div>
+
+  <h4>Agregar producto</h4>
+  <div *ngIf="canEditOrder; else disabledAddForm">
+    <select [(ngModel)]="newOrderItem.menu_item_id">
+      <option *ngFor="let item of menu" [value]="item.id">{{ item.name }} (${{ item.price }})</option>
+    </select>
+    <input type="number" [(ngModel)]="newOrderItem.quantity" [min]="0" placeholder="Cantidad" />
+    <button (click)="addItemToOrder()">Agregar</button>
+  </div>
+
+  <ng-template #disabledAddForm>
+    <p style="color: gray;">No puedes agregar productos a una orden pagada o cancelada.</p>
+  </ng-template>
+
+  <h4>Productos en esta orden</h4>
+  <ul>
+    <li *ngFor="let item of selectedOrder.items">
+      {{ item.name }} — ${{ item.price }} x {{ item.quantity }}
+      <br />
+      <label>Cantidad:</label>
+      <input
+        type="number"
+        [(ngModel)]="item.quantity"
+        (blur)="updateOrderItem(item)"
+        [disabled]="!canEditOrder"
+      />
+
+      <label>Precio:</label>
+      <input
+        type="number"
+        [(ngModel)]="item.price"
+        (blur)="updateOrderItem(item)"
+        [disabled]="!canEditOrder"
+      />
+
+      <button (click)="deleteOrderItem(item.id)" [disabled]="!canEditOrder">Eliminar</button>
     </li>
   </ul>
 </section>
 
 <section>
   <h3>Menú</h3>
+
   <ul>
     <li *ngFor="let item of menu">
-      {{ item.name }} — ${{ item.price }} — {{ item.available ? 'Disponible' : 'No disponible' }}
+      <ng-container *ngIf="editingItem?.id === item.id; else viewItem">
+        <input [(ngModel)]="editingItem.name" placeholder="Nombre" />
+        <input type="number" [(ngModel)]="editingItem.price" placeholder="Precio" />
+        <button (click)="saveEdit()">💾</button>
+      </ng-container>
+      <ng-template #viewItem>
+        {{ item.name }} — ${{ item.price }} — {{ item.available ? 'Disponible' : 'No disponible' }}
+        <button (click)="startEditItem(item)">✏️</button>
+        <button (click)="deleteItem(item.id)">🗑️</button>
+      </ng-template>
     </li>
   </ul>
+
+  <h4>Agregar nuevo ítem</h4>
+  <input [(ngModel)]="newItem.name" placeholder="Nombre" />
+  <input type="number" [(ngModel)]="newItem.price" placeholder="Precio" />
+  <button (click)="addMenuItem()">➕ Agregar</button>
 </section>
